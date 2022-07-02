@@ -52,3 +52,8 @@ li {
 .iframeDictionary {
     display: none;
 }
+
+.wordElement:hover {
+    background: #0000000A;
+    cursor: pointer;
+}

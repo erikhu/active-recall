@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from 'react';
-import {utils, read} from "xlsx";
+import { utils, read } from "xlsx";
 import logo from './logo.svg';
 import './App.css';
 import { AsyncLocalStorage } from 'async_hooks';
@@ -14,27 +14,63 @@ type WordComponentProps = {
     word: Word;
 }
 
-function WordComponent({word}: WordComponentProps) {
+function WordComponent({ word }: WordComponentProps) {
     const listDefinitions = word.definitions.map((definition, index) =>
         (<li key={index}>{definition}</li>)
     );
 
-   return (
-       <div>
-           <p className="App-WordComponent-Word">
-               {word.word}
-        </p>
-        <ul>
-            {listDefinitions}
-        </ul>
-       </div>
-   )
+    return (
+        <div>
+            <p className="App-WordComponent-Word">
+                {word.word}
+            </p>
+            <ul>
+                {listDefinitions}
+            </ul>
+        </div>
+    )
+}
+
+type SearchComponentProps = {
+    onSearch: (search: string) => void;
+    onPressWord: (word: Word) => void;
+    words: Array<Word>;
+}
+
+function SearchComponent({ onSearch, words, onPressWord }: SearchComponentProps) {
+    const [search, setSearch] = useState("")
+
+    const componentWord = (word: Word) => {
+        return (<div className="wordElement" key={word.word} onClick={() => {
+            setSearch("");
+            onPressWord(word);
+        }}>{word.word}</div>)
+    }
+
+    const componentWords = () => {
+        return words.map((word) => {
+            return componentWord(word);
+        })
+    }
+
+    return (
+        <div>
+            <label>Search: </label>
+            <input type="text" value={search} onChange={(e) => {
+                setSearch(e.target.value);
+                onSearch(e.target.value)
+            }} />
+            { search != "" && (<div>{componentWords()}</div>)}
+        </div>
+    )
 }
 
 function App() {
     const cachedWords = JSON.parse(localStorage.getItem("words") || "[]");
 
     const [words, setWords] = useState<Array<Word>>(cachedWords);
+
+    const [search, setSearch] = useState("");
 
     const [cursor, setCursor] = useState(0);
 
@@ -46,7 +82,7 @@ function App() {
         } else if (words.length > cursor + 1) {
             return cursor + 1;
         }
-       return 0 ;
+        return 0;
     }
 
     const loadDocument = (event: any) => {
@@ -60,49 +96,68 @@ function App() {
 
             vocabulary.SheetNames.forEach((sheetName) => {
                 utils.sheet_to_json(vocabulary.Sheets[sheetName]).map((row) => {
-                   const rowList = Object.values(row as object);
-                    newWords.push({word: rowList[0], definitions: rowList});
+                    const rowList = Object.values(row as object);
+                    newWords.push({ word: rowList[0], definitions: rowList });
                 });
             });
 
             localStorage.setItem("words", JSON.stringify(newWords));
             setWords(newWords);
-            setCursor(newWords.length()-1)
+            setCursor(newWords.length() - 1)
         };
 
         reader.onerror = (error: any) => {
-           console.error(error); 
+            console.error(error);
         }
 
         reader.readAsBinaryString(file);
     }
 
-  return (
+    const onSearch = (search: string) => {
+        setSearch(search);
+    }
+
+    const filteredWords = () => {
+        return words.filter((word: Word) => {
+            return search == "" || word.word.startsWith(search);
+        });
+    }
+
+    const onPressWordSearcher = (word: Word) => {
+        const index = words.findIndex((el) => el == word);
+        setCursor(index);
+    }
+
+    return (
         <div className="App" >
             <div>
-                    <input name="vocabulary" type="file" onChange={loadDocument} />
+                <input name="vocabulary" type="file" onChange={loadDocument} />
             </div>
 
             <div className="App-content">
                 <div className="App-cursor">
-                  <div>total words: {words.length}</div>
-                  <div>press (d) to find in dictionary</div>
-                  <input
-                      type="number"
-                      value={cursor}
-                      onChange={(e) => setCursor(nextCursor(+(e.target.value) - 1))}
-                      onKeyUp={(e) => {
-                          if (e.key === "d") {
-                              setIframeDict(!iframeDict);
-                          }
-                      }
-                      } /><button onClick={() => setCursor(nextCursor(cursor))}>Next</button>
-              </div>
-              {cursor < words.length && cursor >= 0 && (
+                    <div>total words: {words.length}</div>
+                    <div>press (d) to find in dictionary</div>
+                    <input
+                        type="number"
+                        value={cursor}
+                        onChange={(e) => setCursor(nextCursor(+(e.target.value) - 1))}
+                        onKeyUp={(e) => {
+                            if (e.key === "d") {
+                                setIframeDict(!iframeDict);
+                            }
+                        }
+                        } /><button onClick={() => setCursor(nextCursor(cursor))}>Next</button>
+                    <SearchComponent
+                        words={filteredWords()}
+                        onSearch={onSearch}
+                        onPressWord={onPressWordSearcher} />
+                </div>
+                {cursor < words.length && cursor >= 0 && (
                     <>
-                    <WordComponent word={words[cursor]} />
-                      <iframe src={`https://dictionary.cambridge.org/dictionary/english/${words[cursor].word}`} height="300" width= "300" hidden={iframeDict} />
-            </>
+                        <WordComponent word={words[cursor]} />
+                        <iframe src={`https://dictionary.cambridge.org/dictionary/english/${words[cursor].word}`} height="300" width="300" hidden={iframeDict} />
+                    </>
                 )}
             </div>
         </div>
