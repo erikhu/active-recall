@@ -178,7 +178,7 @@ function App() {
                             <h3>
                                 Active notes:
                             </h3>
-                            <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) } value={wordNotes()}></textarea>
+                            <textarea name="notes" rows={20} className="App-notes" onChange={e => updateWordNotes(e.target.value) } value={wordNotes()}></textarea>
                         </div>
                     </>
                 )}
