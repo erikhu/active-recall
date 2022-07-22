@@ -90,6 +90,7 @@ function App() {
         const cachedWords = JSON.parse(localStorage.getItem("words") || "[]");
         cachedWords[cursor] = {...cachedWords[cursor], notes: notes}
         localStorage.setItem("words", JSON.stringify(cachedWords));
+        setWords(cachedWords);
     }
 
     const loadDocument = (event: any) => {
@@ -172,7 +173,13 @@ function App() {
                     <>
                         <WordComponent word={words[cursor]} />
                         <iframe src={`https://dictionary.cambridge.org/dictionary/english/${words[cursor].word}`} height="300" width="300" hidden={iframeDict} />
-                        <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) } value={wordNotes()}></textarea>
+
+                        <div className="App-notes-container">
+                            <h3>
+                                Active notes:
+                            </h3>
+                            <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) } value={wordNotes()}></textarea>
+                        </div>
                     </>
                 )}
             </div>

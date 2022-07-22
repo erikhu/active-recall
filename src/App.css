@@ -60,5 +60,8 @@ li {
 
 .App-notes {
     width: 35rem;
-    margin: 3rem;
+}
+
+.App-notes-container {
+    margin-top: 5rem;
 }
