@@ -57,3 +57,8 @@ li {
     background: #0000000A;
     cursor: pointer;
 }
+
+.App-notes {
+    width: 35rem;
+    margin: 3rem;
+}

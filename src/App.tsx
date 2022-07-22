@@ -7,6 +7,7 @@ import { AsyncLocalStorage } from 'async_hooks';
 type Word = {
     definitions: Array<string>;
     word: string;
+    notes: string;
     imgUrl?: string;
 }
 
@@ -85,6 +86,12 @@ function App() {
         return 0;
     }
 
+    const updateWordNotes = (notes: string) => {
+        const cachedWords = JSON.parse(localStorage.getItem("words") || "[]");
+        cachedWords[cursor] = {...cachedWords[cursor], notes: notes}
+        localStorage.setItem("words", JSON.stringify(cachedWords));
+    }
+
     const loadDocument = (event: any) => {
         const [file] = event.target.files;
 
@@ -157,6 +164,7 @@ function App() {
                     <>
                         <WordComponent word={words[cursor]} />
                         <iframe src={`https://dictionary.cambridge.org/dictionary/english/${words[cursor].word}`} height="300" width="300" hidden={iframeDict} />
+                        <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) }>{words[cursor]["notes"]}</textarea>
                     </>
                 )}
             </div>
