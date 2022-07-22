@@ -135,19 +135,27 @@ function App() {
         setCursor(index);
     }
 
+    const wordNotes = () => {
+        if("notes" in words[cursor]) {
+            return words[cursor]["notes"];
+        }
+        return "";
+    }
+
+
     return (
         <div className="App" >
-            <div>
-                <input name="vocabulary" type="file" onChange={loadDocument} />
-            </div>
+        <div>
+        <input name="vocabulary" type="file" onChange={loadDocument} />
+        </div>
 
-            <div className="App-content">
-                <div className="App-cursor">
-                    <div>total words: {words.length}</div>
-                    <div>press (d) to find in dictionary</div>
-                    <input
-                        type="number"
-                        value={cursor}
+        <div className="App-content">
+        <div className="App-cursor">
+        <div>total words: {words.length}</div>
+        <div>press (d) to find in dictionary</div>
+        <input
+        type="number"
+        value={cursor}
                         onChange={(e) => setCursor(nextCursor(+(e.target.value) - 1))}
                         onKeyUp={(e) => {
                             if (e.key === "d") {
@@ -164,7 +172,7 @@ function App() {
                     <>
                         <WordComponent word={words[cursor]} />
                         <iframe src={`https://dictionary.cambridge.org/dictionary/english/${words[cursor].word}`} height="300" width="300" hidden={iframeDict} />
-                        <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) }>{words[cursor]["notes"]}</textarea>
+                        <textarea name="notes" className="App-notes" onChange={e => updateWordNotes(e.target.value) } value={wordNotes()}></textarea>
                     </>
                 )}
             </div>
